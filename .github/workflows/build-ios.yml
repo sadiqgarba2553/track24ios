@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install Dependencies
@@ -28,12 +28,32 @@ jobs:
       - name: Build Web Application
         run: npm run build
 
-      - name: Sync Capacitor iOS
-        run: npx cap sync ios
+      - name: Copy Web Assets to iOS
+        run: |
+          # Manually copy built web assets into the native iOS project
+          # This avoids needing `npx cap copy` which can fail due to SPM resolution
+          rm -rf ios/App/App/public
+          mkdir -p ios/App/App/public
+          cp -r dist/* ios/App/App/public/
+          echo "Web assets copied to ios/App/App/public/"
+          ls -la ios/App/App/public/
+
+      - name: Copy Capacitor Config
+        run: |
+          # Ensure the native capacitor config is up to date
+          cp capacitor.config.json ios/App/App/capacitor.config.json
+          echo "Capacitor config synced"
+
+      - name: Resolve SPM Dependencies
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj \
+            -scheme App \
+            -resolvePackageDependencies
 
       - name: Build Xcode Archive (Release)
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace \
+          mkdir -p build
+          xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
