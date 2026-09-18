@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/ifapi/:path*", "destination": "https://api.infiniteflight.com/public/v2/:path*" },
+    { "source": "/api/airport-layout/:icao", "destination": "https://waypoint-live.app/api/layout/:icao" },
+    { "source": "/weather/metar", "destination": "https://aviationweather.gov/api/data/metar" },
+    { "source": "/weather/taf", "destination": "https://aviationweather.gov/api/data/taf" },
+    { "source": "/weather/wind", "destination": "https://api.open-meteo.com/v1/forecast" },
+    { "source": "/weather/radar", "destination": "https://api.rainviewer.com/public/weather-maps.json" },
+    { "source": "/:path*", "destination": "/index.html" }
+  ]
+}

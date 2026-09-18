@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track 24 — Contribute a livery photo</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-color: #090d16;
+      --card-bg: rgba(255, 255, 255, 0.025);
+      --card-border: rgba(255, 255, 255, 0.07);
+      --box-bg: rgba(255, 255, 255, 0.02);
+      --input-bg: rgba(255, 255, 255, 0.04);
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --accent: rgba(255, 255, 255, 0.1);
+      --accent-hover: rgba(255, 255, 255, 0.16);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-color);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 600px;
+      padding: 40px 20px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .header-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .header-icon img {
+      width: 32px;
+      height: 32px;
+    }
+    .header-text h1 {
+      margin: 0 0 4px 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .header-text p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+    .header-text p span {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: var(--input-bg);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      box-sizing: border-box;
+      appearance: none;
+      transition: 0.15s;
+    }
+    
+    .select-wrapper {
+      position: relative;
+    }
+    .select-wrapper::after {
+      content: '\f0d7';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      pointer-events: none;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .guidelines-box {
+      background: var(--box-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .guidelines-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .guidelines-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .guidelines-list li {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .guidelines-list li:last-child {
+      margin-bottom: 0;
+    }
+    .guidelines-list li i {
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .dropzone {
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      background: var(--box-bg);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      margin-bottom: 20px;
+    }
+    .dropzone:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .dropzone i {
+      font-size: 24px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+    }
+    .dropzone p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .dropzone input[type="file"] {
+      display: none;
+    }
+    
+    .file-preview {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+    }
+    .file-preview img {
+      width: 48px;
+      height: 48px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+    .file-preview .file-name {
+      font-size: 13px;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .btn-submit:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+    }
+    .btn-submit:not(:disabled):hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    #message {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      display: none;
+    }
+    .success { color: #ffffff; display: block !important; }
+    .error { color: #cbd5e1; display: block !important; }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+    <div class="header">
+      <div class="header-icon">
+        <img src="logo.svg" alt="Logo" />
+      </div>
+      <div class="header-text">
+        <h1>Contribute a livery photo</h1>
+        <p>Help fill in the aircraft photos on <span>Track 24</span>. No account needed.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-group">
+        <label for="aircraftSelect">Aircraft</label>
+        <div class="select-wrapper">
+          <select id="aircraftSelect" disabled>
+            <option value="">Loading...</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="liverySelect">Livery</label>
+        <div class="select-wrapper">
+          <select id="liverySelect" disabled>
+            <option value="">Select airplane first</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="guidelines-box">
+        <div class="guidelines-title">
+          <i class="fa-solid fa-clipboard-list"></i> Photo guidelines
+        </div>
+        <ul class="guidelines-list">
+          <li><i class="fa-solid fa-square-check"></i> Straight-on side view of the aircraft</li>
+          <li><i class="fa-solid fa-square-check"></i> The whole plane visible in frame</li>
+          <li><i class="fa-solid fa-square-check"></i> The front of the plane is well-lit</li>
+          <li><i class="fa-solid fa-square-check"></i> The airline name is readable</li>
+          <li><i class="fa-solid fa-square-check"></i> Daytime — not at night</li>
+          <li><i class="fa-solid fa-square-check"></i> Natural look — no Photoshop or edits</li>
+          <li><i class="fa-solid fa-square-check"></i> No name tags or online (green) dots</li>
+          <li><i class="fa-solid fa-square-check"></i> Landscape format (3:2 or similar)</li>
+          <li><i class="fa-solid fa-square-check"></i> At least 1080p resolution</li>
+        </ul>
+      </div>
+
+      <div class="form-group">
+        <label>Photo</label>
+        <div class="dropzone" id="dropzone">
+          <i class="fa-solid fa-camera"></i>
+          <p>Tap to choose an image (in-game livery selection / side view). Max 10 MB.</p>
+          <input type="file" id="imageInput" accept="image/*" />
+        </div>
+        <div class="file-preview" id="filePreview">
+          <img id="previewImg" src="" alt="Preview">
+          <div class="file-name" id="previewName">filename.jpg</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="creditInput">Your IF username (shown as the photo credit)</label>
+        <input type="text" id="creditInput" placeholder="e.g. YourCallsign" />
+      </div>
+
+      <button id="submitBtn" class="btn-submit" disabled>Submit photo</button>
+      
+      <div id="message"></div>
+    </div>
+  </div>
+
+  <script>
+    let liveryData = [];
+
+    async function init() {
+      try {
+        const res = await fetch('/api/aircraft/liveries');
+        const data = await res.json();
+        liveryData = data.result || [];
+        
+        const aircraftNames = [...new Set(liveryData.map(l => l.aircraftName))].sort();
+        
+        const acSelect = document.getElementById('aircraftSelect');
+        acSelect.innerHTML = '<option value="">-- Choose Aircraft --</option>';
+        aircraftNames.forEach(name => {
+          acSelect.innerHTML += `<option value="${name}">${name}</option>`;
+        });
+        acSelect.disabled = false;
+        
+      } catch (err) {
+        showMessage('Failed to load aircraft data', 'error');
+      }
+    }
+
+    document.getElementById('aircraftSelect').addEventListener('change', (e) => {
+      const acName = e.target.value;
+      const livSelect = document.getElementById('liverySelect');
+      
+      if (!acName) {
+        livSelect.innerHTML = '<option value="">Select airplane first</option>';
+        livSelect.disabled = true;
+        checkForm();
+        return;
+      }
+      
+      const liveries = liveryData.filter(l => l.aircraftName === acName)
+                                 .map(l => l.liveryName).sort();
+                                 
+      livSelect.innerHTML = '<option value="">-- Choose Livery --</option>';
+      liveries.forEach(liv => {
+        livSelect.innerHTML += `<option value="${liv}">${liv}</option>`;
+      });
+      livSelect.disabled = false;
+      checkForm();
+    });
+
+    const dropzone = document.getElementById('dropzone');
+    const imageInput = document.getElementById('imageInput');
+    const filePreview = document.getElementById('filePreview');
+    const previewImg = document.getElementById('previewImg');
+    const previewName = document.getElementById('previewName');
+
+    dropzone.addEventListener('click', () => imageInput.click());
+
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        previewName.textContent = file.name;
+        previewImg.src = URL.createObjectURL(file);
+        filePreview.style.display = 'flex';
+      } else {
+        filePreview.style.display = 'none';
+      }
+      checkForm();
+    });
+
+    document.getElementById('liverySelect').addEventListener('change', checkForm);
+    document.getElementById('creditInput').addEventListener('input', checkForm);
+
+    function checkForm() {
+      const ac = document.getElementById('aircraftSelect').value;
+      const liv = document.getElementById('liverySelect').value;
+      const img = document.getElementById('imageInput').files[0];
+      const credit = document.getElementById('creditInput').value.trim();
+      
+      document.getElementById('submitBtn').disabled = !(ac && liv && img && credit);
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const ac = document.getElementById('aircraftSelect').value;
+      const liv = document.getElementById('liverySelect').value;
+      const file = document.getElementById('imageInput').files[0];
+      const credit = document.getElementById('creditInput').value.trim();
+      
+      if (file.size > 10 * 1024 * 1024) {
+        showMessage('File too large (max 10MB)', 'error');
+        return;
+      }
+      
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
+      
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        try {
+          const res = await fetch('/upload-aircraft-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ aircraft: ac, livery: liv, credit: credit, image: ev.target.result })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showMessage(data.message, 'success');
+            document.getElementById('imageInput').value = '';
+            filePreview.style.display = 'none';
+            document.getElementById('creditInput').value = '';
+            document.getElementById('aircraftSelect').value = '';
+            document.getElementById('liverySelect').innerHTML = '<option value="">Select airplane first</option>';
+            document.getElementById('liverySelect').disabled = true;
+          } else {
+            showMessage(data.error || 'Upload failed', 'error');
+          }
+        } catch (err) {
+          showMessage('Network error during upload', 'error');
+        } finally {
+          document.getElementById('submitBtn').innerHTML = 'Submit photo';
+          checkForm();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function showMessage(msg, type) {
+      const el = document.getElementById('message');
+      el.textContent = msg;
+      el.className = type;
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{
+  "name": "Track 24 — Infinite Flight Live Radar",
+  "short_name": "Track 24",
+  "description": "Real-time live flight radar and tracker for Infinite Flight simulator with approach telemetry and ATC.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0e16",
+  "theme_color": "#0a0e16",
+  "categories": ["navigation", "travel", "utilities"],
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "48x48 72x72 96x96 128x128",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Live Radar",
+      "url": "/?view=map",
+      "description": "Open live flight radar"
+    },
+    {
+      "name": "Flight Logbook",
+      "url": "/?view=logbook",
+      "description": "View pilot logbook"
+    },
+    {
+      "name": "Radar Analytics",
+      "url": "/?view=analytics",
+      "description": "View global flight statistics"
+    }
+  ]
+}

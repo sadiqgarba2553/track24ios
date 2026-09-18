@@ -1,0 +1,5735 @@
+/* ============================================================
+   Track 24 — Infinite Flight Live Tracker
+   Waypoint-Style Glassmorphic Design System
+   ============================================================ */
+
+:root {
+  --color-bg: #0a0e16;
+  --color-panel: rgba(17, 24, 38, 0.88);
+  --color-panel-solid: #111826;
+  --color-panel-card: rgba(22, 31, 48, 0.92);
+  --color-panel-border: rgba(31, 42, 60, 0.9);
+  --color-panel-border-glow: rgba(56, 189, 248, 0.25);
+  
+  --color-accent: #38bdf8;
+  --color-accent-hover: #0ea5e9;
+  --color-accent-dim: rgba(56, 189, 248, 0.15);
+  
+  --color-expert: #34d399;
+  --color-expert-dim: rgba(52, 211, 153, 0.15);
+  --color-training: #38bdf8;
+  --color-training-dim: rgba(56, 189, 248, 0.15);
+  --color-casual: #818cf8;
+  --color-casual-dim: rgba(129, 140, 248, 0.15);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+
+  --shadow-panel: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--color-panel-border);
+  --shadow-glow: none;
+  
+  --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Reset & Body ────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  height: 100dvh; /* Dynamic viewport height — fixes iOS Safari address bar */
+  min-height: -webkit-fill-available;
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  background-color: var(--color-bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.wp-app-root {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  color: inherit;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input {
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  outline: none;
+}
+
+/* ── Scrollbars ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* ── Glassmorphism Utility ──────────────────────────────── */
+.wp-glass {
+  background: var(--color-panel);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--color-panel-border);
+  box-shadow: var(--shadow-panel);
+}
+
+/* ============================================================
+   TOP FLOATING NAVIGATION (Waypoint Style)
+   ============================================================ */
+.wp-header {
+  position: absolute;
+  /* Push below notch/Dynamic Island using safe area inset */
+  top: calc(12px + env(safe-area-inset-top));
+  left: calc(12px + env(safe-area-inset-left));
+  right: calc(12px + env(safe-area-inset-right));
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  gap: 12px;
+}
+
+.wp-header > * {
+  pointer-events: auto;
+}
+
+.wp-brand-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.wp-brand-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+}
+
+.wp-brand-name {
+  color: #ffffff;
+}
+
+.wp-brand-name span {
+  color: var(--color-accent);
+}
+
+.wp-flight-count-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  margin-left: 4px;
+}
+
+.wp-live-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-expert);
+  box-shadow: none;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Search Bar in Header */
+.wp-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  width: 240px;
+  min-width: 140px;
+  max-width: 260px;
+  flex-shrink: 1;
+  cursor: text;
+  transition: var(--transition-fast);
+}
+
+.wp-search-bar:hover, .wp-search-bar:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-dim);
+}
+
+.wp-search-bar input {
+  background: transparent;
+  width: 100%;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.wp-search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+.wp-search-shortcut {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Server Switcher Segmented Control */
+.wp-server-switcher {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  gap: 3px;
+}
+
+.wp-server-pill {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 100%;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: var(--transition-fast);
+}
+
+.wp-server-pill:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wp-server-pill.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  font-weight: 600;
+}
+
+.server-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.server-dot.expert { background: var(--color-expert); }
+.server-dot.training { background: var(--color-training); }
+.server-dot.casual { background: var(--color-casual); }
+
+.server-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.wp-server-pill.active .server-count {
+  color: var(--text-secondary);
+}
+
+/* Quick Tools in Header */
+.wp-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-icon-button {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: var(--text-secondary);
+  transition: var(--transition-fast);
+}
+
+.wp-icon-button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.wp-icon-button.active {
+  color: var(--color-accent);
+  background: var(--color-accent-dim);
+  border-color: var(--color-accent);
+}
+
+/* ============================================================
+   LEFT FLOATING COLLAPSIBLE CARDS (Waypoint Style)
+   ============================================================ */
+.wp-left-panels {
+  position: absolute;
+  top: 68px;
+  left: 12px;
+  z-index: 20;
+  width: 310px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: calc(100vh - 84px);
+  pointer-events: none;
+}
+
+.wp-left-panels > * {
+  pointer-events: auto;
+}
+
+.wp-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--transition-normal);
+}
+
+.wp-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  min-height: 46px;
+  user-select: none;
+}
+
+.wp-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.wp-tab {
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-muted);
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.wp-tab:hover {
+  color: var(--text-secondary);
+}
+
+.wp-tab.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.wp-collapse-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: bold;
+  transition: var(--transition-fast);
+}
+
+.wp-collapse-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.wp-card-body {
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 4px 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-card.collapsed .wp-card-body {
+  display: none;
+}
+
+/* Empty State */
+.wp-empty-msg {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Flight Item in Panel */
+.wp-flight-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-flight-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.wp-flight-row.selected {
+  background: var(--color-accent-dim);
+  border-color: var(--color-accent);
+}
+
+.wp-flight-info-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wp-callsign-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-callsign {
+  font-weight: 700;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.wp-star-btn {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px;
+}
+
+.wp-star-btn.starred {
+  color: #38bdf8;
+}
+
+.wp-ac-type {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Sleek Unified Aircraft Category Badges (No Multicolor, Dark Slate Instrument Theme) */
+.wp-cat-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 3px;
+  line-height: 1.2;
+  font-family: var(--font-mono, monospace);
+  vertical-align: middle;
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.wp-cat-pill.heavy,
+.wp-cat-pill.widebody,
+.wp-cat-pill.fighter,
+.wp-cat-pill.turboprop,
+.wp-cat-pill.propeller,
+.wp-cat-pill.narrowbody {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.wp-flight-metrics {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.wp-metric-alt {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.wp-metric-spd {
+  color: var(--text-muted);
+}
+
+/* ATC Item in Panel */
+.wp-atc-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-atc-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.wp-atc-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wp-tag {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.wp-tag.twr,
+.wp-tag.gnd,
+.wp-tag.app,
+.wp-tag.atis,
+.wp-tag.ctr {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.wp-atc-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.wp-atc-controller {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.wp-atc-uptime {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Airport Item in Panel */
+.wp-airport-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-airport-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wp-airport-code {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--color-accent);
+}
+
+.wp-airport-title {
+  font-size: 11px;
+  color: var(--text-secondary);
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wp-airport-stat {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Stats Grid in Panel */
+.wp-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.wp-stat-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wp-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.wp-stat-value {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* ============================================================
+   FLIGHT DETAIL DRAWER (Waypoint Style Right Drawer)
+   ============================================================ */
+.wp-flight-drawer.wp-drawer-refined {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  bottom: 20px;
+  width: 370px;
+  max-width: calc(100vw - 32px);
+  background: #121a24;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  animation: drawerSlideIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes drawerSlideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Desktop defaults for mobile-only elements */
+.wp-mob-flight-card {
+  display: none;
+}
+.wp-dr-mob-collapse-btn {
+  display: none !important;
+}
+.wp-mob-panels-dock {
+  display: none !important;
+}
+.wp-mob-card-dismiss {
+  display: none !important;
+}
+.wp-mob-tools-drawer {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  /* Default Collapsed State: Compact docked bottom card (Short at bottom like Image 3) */
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    z-index: 55 !important;
+    overflow: visible !important;
+    pointer-events: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    animation: drawerSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed .wp-mob-flight-card {
+    display: flex !important;
+    pointer-events: auto !important;
+    width: 100vw !important;
+    height: auto !important;
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed .wp-mob-sheet-handle-bar,
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed .wp-dr-topbar,
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed .wp-dr-scroll-body,
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed .wp-dr-bottom-bar {
+    display: none !important;
+  }
+
+  /* Expanded State: Full height scrollable drawer */
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 85dvh;
+    max-height: 85vh;
+    border-radius: 18px 18px 0 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+    background: #121a24;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.8);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: drawerExpand 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded .wp-mob-flight-card {
+    display: none !important;
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded .wp-mob-sheet-handle-bar {
+    display: flex;
+    cursor: pointer;
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded .wp-dr-topbar {
+    display: flex;
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded .wp-dr-mob-collapse-btn {
+    display: flex !important;
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded .wp-dr-scroll-body {
+    display: block;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded .wp-dr-bottom-bar {
+    display: flex;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 16px));
+  }
+}
+
+@keyframes drawerSlideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes drawerExpand {
+  from { height: 240px; }
+  to { height: 85dvh; }
+}
+
+/* ============================================================
+   MOBILE FLIGHT BOTTOM CARD (Apple iOS Liquid Design System)
+   Translucent frosted glass, specular rim reflection & spring curves
+   ============================================================ */
+.wp-mob-flight-card {
+  flex-direction: column;
+  padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 16px)) 16px;
+  background: rgba(12, 18, 30, 0.88);
+  backdrop-filter: blur(36px) saturate(210%);
+  -webkit-backdrop-filter: blur(36px) saturate(210%);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  border-radius: 24px 24px 0 0;
+  color: #ffffff;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* iOS Liquid Handle Bar */
+.wp-liquid-handle-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 0 8px 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.wp-liquid-handle {
+  width: 38px;
+  height: 4.5px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wp-liquid-handle-bar:active .wp-liquid-handle {
+  background: rgba(255, 255, 255, 0.55);
+  transform: scaleX(1.15);
+}
+
+/* Row 1: Header (Thumbnail, Callsign + Badge, Subtitle, Pilot + Close) */
+.wp-mob-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wp-mob-card-head-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.wp-mob-card-thumb-wrap {
+  width: 58px;
+  height: 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #151d2c;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.wp-mob-card-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wp-mob-card-thumb-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 18px;
+}
+
+.wp-mob-card-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.wp-mob-card-callsign-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-mob-card-callsign {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wp-mob-card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.wp-mob-card-badge.ap {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.wp-mob-card-badge.parked {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  box-shadow: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.wp-mob-card-subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.wp-mob-card-head-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wp-mob-card-pilot-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #e2e8f0;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transition: background 0.15s, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  touch-action: manipulation;
+}
+
+.wp-mob-card-pilot-btn:active {
+  background: rgba(255, 255, 255, 0.16);
+  transform: scale(0.94);
+}
+
+.wp-mob-card-pilot-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wp-mob-card-pilot-btn i {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.wp-mob-card-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  touch-action: manipulation;
+}
+
+.wp-mob-card-close:active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.9);
+}
+
+/* Row 2: Route & Remaining Time */
+.wp-mob-card-route {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.wp-mob-card-endpoint {
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-mob-card-endpoint.origin {
+  align-items: flex-start;
+}
+
+.wp-mob-card-endpoint.dest {
+  align-items: flex-end;
+}
+
+.wp-mob-card-icao {
+  font-size: 21px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+.wp-mob-card-time {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  margin-top: 4px;
+  font-family: var(--font-mono, monospace);
+  line-height: 1;
+}
+
+.wp-mob-card-mid-time {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2px;
+}
+
+.wp-mob-card-left-val {
+  font-size: 15px;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.01em;
+}
+
+/* Row 3: Progress Track with Rotated Airplane Marker */
+.wp-mob-card-progress-wrap {
+  margin: 10px 0 6px 0;
+  width: 100%;
+  position: relative;
+}
+
+.wp-mob-card-progress-track {
+  height: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.13);
+  border-radius: 100px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.wp-mob-card-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+  border-radius: 100px;
+  box-shadow: none;
+}
+
+.wp-mob-card-progress-plane {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  color: #ffffff;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* Row 4: Route Telemetry Single Line */
+.wp-mob-card-telemetry-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #94a3b8;
+  font-family: var(--font-mono, monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.wp-mob-card-telemetry-line .sep {
+  color: #475569;
+  font-weight: bold;
+}
+
+/* Row 5: 5 Actions Bottom Bar with Apple Liquid Feel */
+.wp-mob-card-actions {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  margin-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+
+.wp-mob-card-act-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 6px 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+  touch-action: manipulation;
+}
+
+.wp-mob-card-act-btn i {
+  font-size: 16px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wp-mob-card-act-btn span {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.wp-mob-card-act-btn:active {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(0.92);
+  color: #ffffff;
+}
+
+.wp-mob-card-act-btn.active {
+  color: #38bdf8;
+}
+
+.wp-mob-card-act-btn.active i {
+  color: #38bdf8;
+  transform: scale(1.08);
+}
+
+/* 1. Top Bar */
+.wp-dr-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 10px 16px;
+  background: #141e2b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wp-dr-callsign-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-dr-callsign {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 210px;
+}
+
+.wp-dr-ap-badge {
+  background: rgba(14, 165, 233, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 1px 5px;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+}
+
+.wp-dr-subtitle {
+  font-size: 12px;
+  color: #7d90a4;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.wp-dr-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wp-dr-btn-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8da0b4;
+  font-size: 13px;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+
+.wp-dr-btn-icon:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.wp-dr-btn-icon.active {
+  color: var(--color-accent);
+}
+
+/* 2. Photo Card */
+.wp-dr-photo-card {
+  position: relative;
+  width: 100%;
+  height: 165px;
+  background: #0b1118;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.wp-dr-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.wp-dr-photo-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #55677d;
+  background: #0e1622;
+  font-size: 11px;
+}
+
+.wp-dr-photo-tag {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #cbd5e1;
+  font-weight: 500;
+}
+
+.wp-dr-photo-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.wp-dr-photo-arrow:hover {
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.wp-dr-photo-arrow.left { left: 8px; }
+.wp-dr-photo-arrow.right { right: 8px; }
+
+.wp-dr-photo-dots {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wp-dr-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transition: all 0.15s ease;
+}
+
+.wp-dr-dot.active {
+  width: 14px;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+/* 3. Route Box */
+.wp-dr-route-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px 20px;
+  background: #141e2a;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.wp-dr-airport-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-dr-airport-col.right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.wp-dr-icao {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  font-family: var(--font-mono);
+  line-height: 1.1;
+}
+
+.wp-dr-city {
+  font-size: 12px;
+  color: #889bb0;
+  margin-top: 3px;
+}
+
+.wp-dr-tz {
+  font-size: 10.5px;
+  color: #5d6f82;
+  margin-top: 1px;
+}
+
+.wp-dr-plane-bubble {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+/* 4. Times Box */
+.wp-dr-times-box {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 20px 12px 20px;
+  background: #141e2a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wp-dr-time-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-dr-time-col.right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.wp-dr-time-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #5d6f82;
+}
+
+.wp-dr-time-num {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 5px;
+  font-family: var(--font-sans);
+}
+
+.wp-dr-act-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #5d6f82;
+}
+
+.wp-dr-act-num {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1px;
+}
+
+.wp-dr-green-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: none;
+  display: inline-block;
+}
+
+/* 5. Progress Wrap */
+.wp-dr-progress-wrap {
+  padding: 12px 20px 14px 20px;
+  background: #121a24;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wp-dr-progress-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+}
+
+.wp-dr-progress-fill {
+  position: relative;
+  height: 100%;
+  background: #0ea5e9;
+  border-radius: 2px;
+}
+
+.wp-dr-plane-marker {
+  position: absolute;
+  right: -7px;
+  top: -7px;
+  color: #ffffff;
+  font-size: 13px;
+  transform: rotate(45deg);
+}
+
+.wp-dr-progress-sub {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #889bb0;
+  margin-top: 10px;
+}
+
+/* 6. Scrollable Body & Accordions */
+.wp-dr-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.wp-dr-accordions {
+  background: #101721;
+}
+
+.wp-dr-sec {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.wp-dr-sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 18px;
+  background: #141e2a;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+  border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.wp-dr-sec-header:hover {
+  background: #172330;
+}
+
+.wp-dr-sec-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #38bdf8;
+}
+
+.wp-dr-sec-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #55677d;
+  font-size: 9.5px;
+}
+
+.wp-dr-sec-body {
+  padding: 8px 18px 12px 18px;
+  background: #101721;
+}
+
+/* Row with left icon and 2 data columns */
+.wp-dr-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.wp-dr-row:last-child {
+  border-bottom: none;
+}
+
+.wp-dr-row-icon {
+  width: 20px;
+  padding-top: 2px;
+  color: #64748b;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wp-dr-row-cols {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.wp-dr-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wp-dr-col-single {
+  grid-column: span 2;
+}
+
+.wp-dr-cell-lbl {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #6d7f92;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.wp-dr-cell-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #f8fafc;
+  line-height: 1.25;
+}
+
+.wp-dr-subhead {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #55677d;
+  letter-spacing: 0.06em;
+  padding: 8px 0 3px 0;
+  margin-bottom: 4px;
+}
+
+/* Chart Container in Accordion */
+.wp-dr-chart-legend {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  font-size: 11px;
+  color: #8e9ba9;
+  margin-bottom: 8px;
+}
+
+.wp-dr-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.wp-dr-legend-line {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+.wp-dr-legend-line.yellow { background: #94a3b8; }
+.wp-dr-legend-line.blue { background: #38bdf8; }
+
+.wp-dr-chart-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 60px;
+}
+
+.wp-dr-chart-y-left,
+.wp-dr-chart-y-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 56px;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: #64748b;
+}
+
+.wp-dr-profile-svg {
+  flex: 1;
+  height: 60px;
+  overflow: visible;
+}
+
+.wp-dr-chart-x {
+  display: flex;
+  justify-content: space-around;
+  font-size: 9px;
+  font-family: var(--font-mono);
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.wp-dr-waypoints-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f8fafc;
+  padding: 10px 0 2px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.wp-dr-wp-link {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* 7. Bottom Fixed Action Bar */
+.wp-dr-bottom-bar {
+  background: #111822;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 14px 8px 14px;
+  flex-shrink: 0;
+}
+
+.wp-dr-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.wp-dr-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wp-dr-action-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.wp-dr-action-btn.active {
+  background: rgba(14, 165, 233, 0.15);
+  border-color: rgba(14, 165, 233, 0.35);
+  color: #38bdf8;
+}
+
+.wp-dr-action-btn i {
+  font-size: 14px;
+}
+
+.wp-dr-footer-sub {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.wp-dr-foot-pilot {
+  font-weight: 500;
+  color: #8e9ba9;
+}
+
+.wp-dr-foot-time {
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   AIRPORT DRAWER
+   ============================================================ */
+.wp-airport-drawer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100vw - 24px));
+  max-height: 80vh;
+  border-radius: var(--radius-lg);
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 16px;
+  gap: 12px;
+}
+
+.wp-airport-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.wp-airport-icao {
+  font-size: 24px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  color: var(--color-accent);
+}
+
+.wp-airport-fullname {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.wp-airport-location {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.wp-weather-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wp-metar-raw {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* Airport Drawer Search Inputs (Gates & FIDS Flights) */
+.wp-gate-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0 10px;
+  gap: 8px;
+  transition: all 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.wp-gate-search-wrap:focus-within {
+  border-color: var(--color-accent, #38bdf8);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.2);
+}
+
+.wp-gate-search-wrap i.fa-magnifying-glass {
+  color: #94a3b8;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.wp-gate-search-input {
+  flex: 1;
+  width: 100%;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: #ffffff !important;
+  font-size: 11.5px;
+  font-family: inherit;
+  padding: 8px 0;
+  box-shadow: none !important;
+  box-sizing: border-box;
+}
+
+.wp-gate-search-input::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+.wp-gate-clear-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.wp-gate-clear-btn:hover {
+  color: #ffffff;
+}
+
+/* ============================================================
+   SEARCH MODAL
+   ============================================================ */
+.wp-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 80px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.wp-search-modal {
+  width: min(540px, 94vw);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-search-input-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-panel-border);
+}
+
+.wp-search-input-box i {
+  color: var(--color-accent);
+  font-size: 16px;
+}
+
+.wp-search-input-box input {
+  background: transparent;
+  width: 100%;
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.wp-search-results {
+  max-height: 360px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wp-search-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  padding: 6px 8px 2px 8px;
+}
+
+.wp-search-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-search-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   SETTINGS MODAL
+   ============================================================ */
+.wp-settings-modal {
+  width: min(440px, 94vw);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.wp-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-panel-border);
+  padding-bottom: 10px;
+}
+
+.wp-settings-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wp-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.wp-toggle {
+  width: 40px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-pill);
+  position: relative;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-toggle.active {
+  background: var(--color-accent);
+}
+
+.wp-toggle-thumb {
+  width: 16px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: var(--transition-fast);
+}
+
+.wp-toggle.active .wp-toggle-thumb {
+  transform: translateX(18px);
+}
+
+/* ============================================================
+   FLOATING FAB STACK (Right Bottom)
+   ============================================================ */
+.wp-fab-stack {
+  position: absolute;
+  right: 14px;
+  bottom: 24px;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wp-fab {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-secondary);
+  transition: var(--transition-fast);
+}
+
+.wp-fab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.wp-fab.active {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+/* ============================================================
+   MOBILE-FIRST NAVIGATION & RESPONSIVE DESIGN SYSTEM
+   ============================================================ */
+.wp-mobile-nav {
+  display: none;
+}
+.wp-mob-server-pill,
+.wp-mob-search-pill,
+.wp-mob-icon-btn {
+  display: none !important;
+}
+.wp-mob-top-search-btn {
+  display: none;
+}
+.wp-mob-server-btn-compact {
+  display: none;
+}
+.wp-mob-sheet-handle-bar {
+  display: none;
+}
+
+@media (max-width: 1440px) {
+  .wp-search-bar {
+    width: 180px;
+    padding: 0 10px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .wp-view-pill span {
+    display: none;
+  }
+  .wp-view-pill {
+    padding: 0 10px;
+  }
+  .wp-search-bar {
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
+    justify-content: center;
+  }
+  .wp-search-bar input,
+  .wp-search-shortcut {
+    display: none;
+  }
+  .wp-avatar-username {
+    max-width: 90px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Prevent iOS Safari auto-zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+
+  /* ── Header Optimization for Mobile (Matches Screenshot Layout) ── */
+  .wp-header {
+    height: 48px;
+    padding: 0 8px;
+    gap: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .wp-brand-pill {
+    display: none !important;
+  }
+
+  .wp-view-nav {
+    display: none !important;
+  }
+  
+  .wp-search-bar {
+    display: none !important;
+  }
+
+  .wp-server-switcher {
+    display: none !important;
+  }
+
+  .wp-header-tools {
+    display: none !important;
+  }
+
+  /* Mobile Server Pill: E 2749 v (Liquid iOS Pill) */
+  .wp-mob-server-pill {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 100px;
+    background: rgba(14, 20, 32, 0.78);
+    backdrop-filter: blur(28px) saturate(210%);
+    -webkit-backdrop-filter: blur(28px) saturate(210%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0.5px rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+  }
+
+  .wp-mob-server-pill:active {
+    transform: scale(0.94);
+    background: rgba(14, 20, 32, 0.95);
+  }
+
+  .wp-mob-server-code {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    color: #38bdf8;
+  }
+  .wp-mob-server-code.expert,
+  .wp-mob-server-code.training,
+  .wp-mob-server-code.casual {
+    color: #38bdf8;
+  }
+
+  .wp-mob-server-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.01em;
+  }
+
+  .wp-mob-server-arr {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-left: 1px;
+  }
+
+  /* Center Search Pill: Track 24 (Liquid iOS Pill) */
+  .wp-mob-search-pill {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 100px;
+    background: rgba(14, 20, 32, 0.78);
+    backdrop-filter: blur(28px) saturate(210%);
+    -webkit-backdrop-filter: blur(28px) saturate(210%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0.5px rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+  }
+
+  .wp-mob-search-pill:active {
+    transform: scale(0.94);
+    background: rgba(14, 20, 32, 0.95);
+  }
+
+  .wp-mob-search-pill i {
+    font-size: 13px;
+    color: #38bdf8;
+  }
+
+  .wp-mob-search-pill span {
+    color: #e2e8f0;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .wp-mob-search-pill .wp-brand-accent {
+    color: #38bdf8;
+    font-weight: 800;
+  }
+
+  /* Mobile Quick Icon Buttons (Recenter / Target, Alerts) */
+  .wp-mob-icon-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(14, 20, 32, 0.78);
+    backdrop-filter: blur(28px) saturate(210%);
+    -webkit-backdrop-filter: blur(28px) saturate(210%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0.5px rgba(255, 255, 255, 0.25);
+    color: #cbd5e1;
+    font-size: 15px;
+    cursor: pointer;
+    position: relative;
+    touch-action: manipulation;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+  }
+
+  .wp-mob-icon-btn:active {
+    transform: scale(0.92);
+    background: rgba(14, 20, 32, 0.95);
+  }
+
+  /* Circular Avatar matching rest of icon buttons */
+  .wp-avatar-btn {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(14, 20, 32, 0.78);
+    backdrop-filter: blur(28px) saturate(210%);
+    -webkit-backdrop-filter: blur(28px) saturate(210%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0.5px rgba(255, 255, 255, 0.25);
+    color: #cbd5e1;
+    overflow: hidden;
+    touch-action: manipulation;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+  }
+
+  .wp-avatar-btn:active {
+    transform: scale(0.92);
+    background: rgba(14, 20, 32, 0.95);
+  }
+
+  .wp-avatar-icon-wrap {
+    color: #cbd5e1;
+    font-size: 15px;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .wp-avatar-username,
+  .wp-avatar-grade {
+    display: none !important;
+  }
+
+  /* ── Mobile Map Tools & Layers Popover (Dark/Light/Satellite, Radar, 3D, FIR, Views) ── */
+  .wp-mob-tools-drawer {
+    display: flex !important;
+    position: absolute;
+    top: calc(52px + env(safe-area-inset-top, 0px));
+    left: 8px;
+    right: 8px;
+    background: rgba(12, 18, 30, 0.92);
+    backdrop-filter: blur(36px) saturate(210%);
+    -webkit-backdrop-filter: blur(36px) saturate(210%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    padding: 14px 16px;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 40;
+    pointer-events: auto;
+    animation: toolsSlideDown 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes toolsSlideDown {
+    from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .wp-mob-tools-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 2px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .wp-mob-tools-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .wp-mob-tools-title i {
+    color: #38bdf8;
+    font-size: 13px;
+  }
+
+  .wp-mob-tools-close {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .wp-mob-tools-close:active {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+
+  .wp-mob-tools-sec {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .wp-mob-tools-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+  }
+
+  .wp-mob-tools-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .wp-mob-tools-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .wp-mob-tool-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 100px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    touch-action: manipulation;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .wp-mob-tool-chip:active {
+    transform: scale(0.93);
+  }
+
+  .wp-mob-tool-chip.active {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #38bdf8;
+    box-shadow: none;
+  }
+
+  /* ── Mobile Floating Collapsible Panels System (Most Tracked, ATC, Fleet) ── */
+  .wp-left-panels {
+    display: block !important;
+    position: static;
+    pointer-events: none;
+  }
+
+  .wp-left-panels > * {
+    pointer-events: auto;
+  }
+
+  /* Horizontal Floating Pill Dock directly under TopNav */
+  .wp-mob-panels-dock {
+    position: fixed;
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    left: 8px;
+    right: 8px;
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    z-index: 26;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    pointer-events: auto;
+    padding: 2px 0;
+  }
+
+  .wp-mob-panels-dock::-webkit-scrollbar {
+    display: none;
+  }
+
+  .wp-mob-dock-pill {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 100px;
+    background: rgba(14, 20, 32, 0.82);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    touch-action: manipulation;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, border-color 0.2s;
+  }
+
+  .wp-mob-dock-pill:active {
+    transform: scale(0.93);
+  }
+
+  .wp-mob-dock-pill i {
+    font-size: 11px;
+    color: #38bdf8;
+  }
+
+  .wp-mob-dock-pill.active {
+    background: rgba(56, 189, 248, 0.22);
+    border-color: rgba(56, 189, 248, 0.55);
+    color: #ffffff;
+    box-shadow: none;
+  }
+
+  /* On mobile, cards stay hidden until active */
+  .wp-left-panels .wp-card {
+    display: none;
+  }
+
+  .wp-left-panels .wp-card.wp-mob-card-active {
+    display: flex !important;
+    flex-direction: column;
+    position: fixed;
+    top: calc(96px + env(safe-area-inset-top, 0px));
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: 480px;
+    max-height: calc(100dvh - 165px);
+    z-index: 28;
+    margin: 0 auto;
+    background: rgba(12, 18, 30, 0.94);
+    backdrop-filter: blur(36px) saturate(210%);
+    -webkit-backdrop-filter: blur(36px) saturate(210%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    overflow: hidden;
+    animation: cardSpringIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes cardSpringIn {
+    from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .wp-mob-card-dismiss {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+    font-size: 12px;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background 0.15s, transform 0.15s;
+    margin-left: 6px;
+  }
+
+  .wp-mob-card-dismiss:active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.9);
+    color: #ffffff;
+  }
+
+  .wp-filter-sidebar,
+  .wp-fleet-sidebar {
+    display: none !important;
+  }
+
+  /* ── Fixed Mobile Bottom Navigation Bar ── */
+  .wp-mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
+    background: rgba(11, 16, 26, 0.94);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+    z-index: 50;
+    align-items: center;
+    justify-content: space-around;
+    padding-left: 4px;
+    padding-right: 4px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .wp-mob-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    min-height: 46px;
+    padding: 4px 2px;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    transition: var(--transition-fast);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .wp-mob-btn i {
+    font-size: 16px;
+    transition: transform 0.15s ease;
+  }
+
+  .wp-mob-btn:active i {
+    transform: scale(0.88);
+  }
+
+  .wp-mob-btn.active {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  .wp-mob-btn.active i {
+    filter: none;
+  }
+
+  .wp-mob-badge-dot {
+    position: absolute;
+    top: -2px;
+    right: -6px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: none;
+    animation: pulseGlow 1.8s infinite;
+  }
+
+  /* ── Mobile Drag Handles for Bottom Sheets ── */
+  .wp-mob-sheet-handle-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0 6px;
+    touch-action: none;
+    cursor: grab;
+    width: 100%;
+    background: transparent;
+  }
+
+  .wp-mob-sheet-handle {
+    width: 40px;
+    height: 4.5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  /* ── Flight Drawer (Expanded) & Airport Drawer on Mobile ── */
+  .wp-flight-drawer.wp-drawer-refined.mobile-expanded,
+  .wp-airport-drawer {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 85dvh !important;
+    max-height: 85vh !important;
+    border-radius: 22px 22px 0 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    z-index: 55 !important;
+    background: #121a24 !important;
+    box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.88) !important;
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* ── Flight Drawer (Collapsed Mobile: Short docked card at bottom like Image 3) ── */
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed {
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    z-index: 55 !important;
+    pointer-events: none !important;
+  }
+
+  .wp-flight-drawer.wp-drawer-refined.mobile-collapsed .wp-mob-flight-card {
+    display: flex !important;
+    pointer-events: auto !important;
+    width: 100vw !important;
+    height: auto !important;
+  }
+
+  /* Responsive Metric Cards inside Flight Drawer */
+  .wp-telemetry-grid,
+  .wp-metrics-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  /* Modals on Mobile: Slide Up from Bottom */
+  .wp-settings-modal,
+  .wp-search-modal,
+  .wp-profile-modal,
+  .wp-upload-modal {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    max-height: 90vh !important;
+    border-radius: 20px 20px 0 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    margin: 0 !important;
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* ── Mobile Bottom Sheet Component Styles ── */
+.wp-mob-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 60;
+  animation: fadeIn 0.2s ease;
+}
+
+.wp-mob-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 82vh;
+  max-height: 86vh;
+  border-radius: 22px 22px 0 0;
+  background: #0e1520;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 -12px 48px rgba(0, 0, 0, 0.85);
+  animation: slideUpSheet 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.wp-mob-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.wp-mob-sheet-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wp-mob-sheet-title i {
+  color: var(--color-accent);
+}
+
+.wp-mob-sheet-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 16px 20px;
+  flex: 1;
+}
+
+/* ── Mobile Fleet Tab ── */
+.wp-mob-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.wp-mob-search-wrap i {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.wp-mob-search-wrap input {
+  flex: 1;
+  background: transparent;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.wp-mob-clear-btn {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+.wp-mob-pill-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.wp-mob-filter-pill {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: var(--transition-fast);
+}
+
+.wp-mob-filter-pill.active {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.wp-mob-cat-row {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wp-mob-cat-pill {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wp-mob-cat-pill.active {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.wp-mob-flight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-mob-flight-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wp-mob-flight-item:active,
+.wp-mob-flight-item.selected {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.wp-mob-fitem-callsign-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.wp-mob-fitem-sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wp-dot-sep {
+  color: var(--text-muted);
+}
+
+.wp-badge-parked {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+.wp-badge-airborne {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+.wp-mob-fitem-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-metric-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: var(--font-mono);
+}
+
+.wp-metric-sub {
+  font-size: 10.5px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* ── Mobile ATC & Airport items ── */
+.wp-mob-atc-list,
+.wp-mob-airports-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-mob-atc-item,
+.wp-mob-airport-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  transition: var(--transition-fast);
+}
+
+.wp-mob-atc-item:active,
+.wp-mob-airport-item:active {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.wp-mob-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+/* ── Mobile Alerts & Notifications Tab ── */
+.wp-mob-perm-card {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wp-perm-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.wp-perm-dot.active {
+  background: #34d399;
+  box-shadow: none;
+}
+
+.wp-perm-dot.inactive {
+  background: #64748b;
+}
+
+.wp-mob-watched-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wp-mob-watched-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.wp-mob-unwatch-btn {
+  color: #f87171;
+  padding: 4px;
+  font-size: 11px;
+}
+
+.wp-mob-alerts-log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-mob-alert-log-item {
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border-left: 3px solid #38bdf8;
+}
+
+.wp-mob-alert-log-item.emergency {
+  border-left-color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+}
+
+/* ── Mobile More & Views Menu ── */
+.wp-mob-server-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-mob-server-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  color: #ffffff;
+  transition: var(--transition-fast);
+}
+
+.wp-mob-server-btn.active {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.wp-mob-views-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-mob-view-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.wp-mob-view-row:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── In-App Notification Toast ── */
+.wp-toast-container {
+  position: fixed;
+  top: max(60px, calc(12px + env(safe-area-inset-top, 0px)));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, calc(100vw - 24px));
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.wp-toast-card {
+  pointer-events: auto;
+  background: rgba(14, 21, 32, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  animation: toastSlideDown 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+@keyframes toastSlideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wp-toast-card.emergency {
+  border-color: rgba(248, 113, 113, 0.6);
+  background: rgba(30, 15, 20, 0.96);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.wp-toast-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.wp-toast-card.emergency .wp-toast-icon {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.wp-toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.wp-toast-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.wp-toast-body {
+  font-size: 11px;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+
+.wp-toast-cta {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin-top: 4px;
+}
+
+.wp-toast-close {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+/* ── PWA Banner & iOS Guide Modal ── */
+.wp-pwa-banner {
+  position: fixed;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100vw - 20px));
+  z-index: 48;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(15, 23, 36, 0.95);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  animation: slideUpSheet 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wp-pwa-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 14px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.wp-pwa-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wp-pwa-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wp-pwa-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wp-pwa-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.wp-pwa-install-btn {
+  padding: 6px 12px;
+  background: var(--color-accent);
+  color: #0a0e16;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: var(--transition-fast);
+}
+
+.wp-pwa-install-btn:active {
+  transform: scale(0.95);
+}
+
+.wp-pwa-close-btn {
+  color: var(--text-muted);
+  padding: 6px;
+  font-size: 12px;
+}
+
+.wp-ios-guide-modal {
+  width: min(380px, calc(100vw - 32px));
+  background: #111827;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 18px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+}
+
+.wp-ios-guide-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.wp-ios-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wp-ios-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 12.5px;
+  color: #cbd5e1;
+}
+
+.wp-ios-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Floating Map Controls (Mobile & Desktop) ── */
+.wp-map-floating-controls {
+  position: absolute;
+  right: 14px;
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wp-map-ctrl-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(14, 20, 32, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  transition: var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wp-map-ctrl-btn:hover {
+  background: rgba(22, 31, 48, 0.95);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+.wp-map-ctrl-btn:active {
+  transform: scale(0.92);
+  background: rgba(56, 189, 248, 0.2);
+}
+
+@media (min-width: 769px) {
+  .wp-map-floating-controls {
+    bottom: 24px;
+    right: 20px;
+  }
+}
+
+/* ============================================================
+   VIEW NAVIGATION PILLS (in TopNav)
+   ============================================================ */
+.wp-view-nav {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  gap: 2px;
+}
+
+.wp-view-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.wp-view-pill:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
+.wp-view-pill.active { color: #ffffff; background: rgba(56,189,248,0.15); }
+.wp-view-pill.active i { color: var(--color-accent); }
+.wp-view-pill i { font-size: 12px; }
+
+/* Avatar Button */
+.wp-avatar-btn {
+  height: 42px;
+  width: auto;
+  min-width: 0;
+  padding: 0 12px 0 8px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-avatar-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.wp-avatar-icon-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #cbd5e1;
+  flex-shrink: 0;
+}
+
+.wp-avatar-username {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f8fafc;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wp-avatar-grade {
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #38bdf8;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   USER PROFILE PANEL
+   ============================================================ */
+.up-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.up-panel {
+  width: min(440px, 94vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: rgba(13, 18, 28, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  padding: 20px 22px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.up-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.up-header-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.up-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.up-sync-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.04em;
+}
+
+.up-sync-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #38bdf8;
+}
+
+.up-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.up-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+/* Integrated Search Input */
+.up-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 10px;
+  transition: border-color 0.2s;
+}
+
+.up-search-box:focus-within {
+  border-color: rgba(56, 189, 248, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.up-search-box i {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.up-search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.up-search-box input::placeholder {
+  color: #64748b;
+}
+
+.up-search-submit {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.up-search-submit:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* Pilot Crest & Header */
+.up-pilot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.up-crest {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #ffffff;
+  letter-spacing: 0.05em;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.up-epaulet-stripes {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+
+.up-epaulet-stripe {
+  width: 12px;
+  height: 2.5px;
+  background: #38bdf8;
+  border-radius: 1px;
+}
+
+.up-grade-pill {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+}
+
+.up-pilot-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.up-pilot-meta {
+  font-size: 12px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* XP Card */
+.up-xp-section {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.up-xp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10.5px;
+}
+
+.up-xp-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.up-xp-value {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #ffffff;
+  font-size: 13px;
+}
+
+.up-xp-bar-bg {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.up-xp-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: #38bdf8;
+  transition: width 0.6s ease;
+}
+
+.up-xp-sub {
+  font-size: 10.5px;
+  color: #64748b;
+  font-family: var(--font-mono);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Quick Stats 4-Grid */
+.up-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.up-stat {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.up-stat-num {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.up-stat-lbl {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: #64748b;
+}
+
+/* Sections & Tables */
+.up-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.up-table-wrap {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.up-table-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 11.5px;
+}
+
+.up-table-row:last-child {
+  border-bottom: none;
+}
+
+/* ============================================================
+   LOGBOOK
+   ============================================================ */
+.lb-container {
+  position: absolute;
+  top: 62px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.lb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lb-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lb-back {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.06);
+  transition: var(--transition-fast);
+}
+.lb-back:hover { color: #fff; background: rgba(255,255,255,0.12); }
+
+.lb-title { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.lb-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-family: var(--font-mono); }
+
+.lb-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  padding: 0 12px;
+  height: 36px;
+  min-width: 260px;
+}
+
+.lb-search {
+  background: transparent;
+  font-size: 13px;
+  width: 100%;
+}
+
+/* Sort Bar */
+.lb-sort-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lb-sort-btn {
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  transition: var(--transition-fast);
+}
+.lb-sort-btn:hover { color: var(--text-secondary); }
+.lb-sort-btn.active { color: #fff; background: rgba(56,189,248,0.15); }
+
+/* Flight List */
+.lb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lb-entry {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.lb-entry:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+.lb-entry.expanded { border-color: var(--color-accent); background: rgba(56,189,248,0.04); }
+
+.lb-entry-main {
+  display: grid;
+  grid-template-columns: 120px 1fr 180px 90px 80px 30px;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.lb-entry-date-col {}
+.lb-date { font-size: 13px; font-weight: 600; color: #fff; }
+.lb-time { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+
+.lb-callsign { font-size: 14px; font-weight: 800; color: #fff; letter-spacing: 0.02em; }
+
+.lb-route {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.lb-icao { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-accent); }
+
+.lb-route-arrow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.lb-route-line {
+  width: 20px;
+  height: 1px;
+  background: rgba(255,255,255,0.15);
+}
+
+.lb-cities { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+.lb-ac-name { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.lb-livery { font-size: 11px; color: var(--text-muted); }
+
+.lb-dur { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: #fff; }
+.lb-dist { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+
+.lb-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+}
+.lb-status.completed { background: var(--color-expert-dim); color: var(--color-expert); }
+.lb-status.diverted { background: rgba(56,189,248,0.15); color: #38bdf8; }
+
+.lb-server-tag {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: block;
+  text-align: center;
+}
+
+.lb-expand-icon { color: var(--text-muted); font-size: 11px; text-align: center; }
+
+/* Expanded Detail */
+.lb-detail {
+  padding: 0 16px 16px 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.lb-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.lb-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lb-detail-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600; }
+.lb-detail-value { font-size: 13px; font-weight: 600; color: #fff; }
+
+.lb-alt-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.lb-alt-mini-label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+.lb-alt-mini-bar-bg {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.lb-alt-mini-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  transition: width 0.6s ease;
+}
+
+.lb-alt-mini-val { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-accent); }
+
+.lb-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============================================================
+   ANALYTICS DASHBOARD
+   ============================================================ */
+.an-container {
+  position: absolute;
+  top: 62px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.an-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Hero Stats Row */
+.an-hero-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.an-hero-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  transition: var(--transition-fast);
+}
+.an-hero-card:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+
+.an-hero-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.an-hero-num { font-family: var(--font-mono); font-size: 22px; font-weight: 800; color: #fff; }
+.an-hero-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Charts Grid */
+.an-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.an-chart-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.an-chart-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Vertical Bar Chart */
+.an-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 8px;
+  height: 160px;
+}
+
+.an-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.an-bar-value { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+.an-bar-track {
+  width: 100%;
+  max-width: 32px;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+}
+
+.an-bar-fill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+.an-bar-label { font-size: 10px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+/* Horizontal Bar Chart */
+.an-h-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.an-h-bar-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+}
+
+.an-h-bar-name { font-size: 12px; color: var(--text-secondary); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.an-h-bar-track {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.an-h-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+
+.an-h-bar-count { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: #fff; text-align: right; }
+
+/* Top Airports */
+.an-airport-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.an-airport-row {
+  display: grid;
+  grid-template-columns: 30px 50px 1fr 80px;
+  align-items: center;
+  gap: 8px;
+}
+
+.an-airport-rank { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); font-weight: 700; }
+.an-airport-icao { font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--color-accent); }
+
+.an-airport-bar-track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.an-airport-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.8s ease;
+}
+
+.an-airport-count { font-size: 11px; color: var(--text-muted); text-align: right; white-space: nowrap; }
+
+/* Server Breakdown */
+.an-server-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.an-server-row {
+  display: grid;
+  grid-template-columns: 10px 80px 1fr 80px;
+  align-items: center;
+  gap: 10px;
+}
+
+.an-server-dot { width: 10px; height: 10px; border-radius: 50%; }
+.an-server-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+
+.an-server-bar-bg {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+
+.an-server-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.8s ease;
+}
+
+.an-server-pct { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); text-align: right; }
+
+/* ============================================================
+   COUNTRIES MAP
+   ============================================================ */
+.cm-container {
+  position: absolute;
+  top: 62px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  padding: 20px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Coverage Hero */
+.cm-hero {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+}
+
+.cm-hero-ring-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.cm-ring-svg { width: 100%; height: 100%; }
+
+.cm-ring-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.cm-ring-num { font-family: var(--font-mono); font-size: 28px; font-weight: 800; color: #fff; }
+.cm-ring-lbl { font-size: 12px; color: var(--text-muted); }
+
+.cm-hero-stats {
+  display: flex;
+  gap: 28px;
+}
+
+.cm-hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cm-hero-val { font-family: var(--font-mono); font-size: 24px; font-weight: 800; color: #fff; }
+.cm-hero-slbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.04em; }
+
+/* Continental Sections */
+.cm-continents {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cm-continent-section {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.cm-continent-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cm-continent-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.cm-continent-name { font-size: 15px; font-weight: 700; color: #fff; }
+.cm-continent-count { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+
+.cm-country-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.cm-country-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+.cm-country-card:hover { background: rgba(255,255,255,0.06); }
+
+.cm-country-flag { font-size: 22px; flex-shrink: 0; }
+
+.cm-country-info { flex: 1; min-width: 0; }
+.cm-country-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cm-country-visits { font-size: 11px; color: var(--text-muted); }
+
+.cm-country-bar-bg {
+  width: 40px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cm-country-bar {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 0.6s ease;
+}
+
+/* ============================================================
+   KEYFRAME ANIMATIONS
+   ============================================================ */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Parked Aircraft Styles */
+.wp-dr-parked-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+}
+
+.wp-dr-plane-bubble.parked {
+  background: #1e293b !important;
+  border: 1px solid #475569;
+  color: #94a3b8 !important;
+}
+
+.wp-dr-green-dot.amber {
+  background: #94a3b8 !important;
+  box-shadow: none !important;
+}
+
+.wp-dr-parked-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: #94a3b8;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* ── Real Flag Image Styles ── */
+.wp-real-flag {
+  display: inline-block;
+  object-fit: cover;
+  border-radius: 2.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  vertical-align: middle;
+  flex-shrink: 0;
+  transition: transform 0.12s ease;
+}
+
+.wp-real-flag-sm {
+  width: 16px;
+  height: 11px;
+}
+
+.wp-real-flag-md {
+  width: 20px;
+  height: 14px;
+}
+
+.wp-real-flag-lg {
+  width: 26px;
+  height: 18px;
+  border-radius: 3px;
+}
+
+.wp-real-flag-xl {
+  width: 34px;
+  height: 23px;
+  border-radius: 4px;
+}
+
+.wp-flag-fallback {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.wp-flag-badge-fallback {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+}
+
+/* Aircraft Category Pills — Clean Uniform Slate Monochrome */
+.wp-cat-pill {
+  font-size: 8.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1.5px 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  line-height: 1.2;
+}
+.wp-cat-pill.heavy,
+.wp-cat-pill.fighter,
+.wp-cat-pill.widebody,
+.wp-cat-pill.turboprop,
+.wp-cat-pill.propeller,
+.wp-cat-pill.narrowbody {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ATC Type Tags — Clean Uniform Slate */
+.wp-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+.wp-tag.twr, .wp-tag.gnd, .wp-tag.app, .wp-tag.atis, .wp-tag.ctr, .wp-tag.dep {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* ============================================================
+   AIRPORT DRAWER TABS & GROUND LAYOUT STYLES
+   ============================================================ */
+.wp-airport-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wp-airport-tab {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: var(--transition-fast);
+}
+
+.wp-airport-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.wp-airport-tab.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.wp-tab-badge {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+.wp-airport-tab.active .wp-tab-badge {
+  background: rgba(56, 189, 248, 0.2);
+  color: #38bdf8;
+}
+
+/* Gate Occupancy Gauge */
+.wp-occupancy-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wp-occupancy-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.wp-occupancy-bar-fill {
+  height: 100%;
+  background: #38bdf8;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.wp-filter-chips {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  flex-shrink: 0;
+}
+
+.wp-chip-btn {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-fast);
+}
+
+.wp-chip-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.wp-chip-btn.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+/* Stand and Runway Cards */
+.wp-stand-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  transition: var(--transition-fast);
+}
+
+.wp-stand-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.wp-stand-card.occupied {
+  border-left: 3px solid #38bdf8;
+}
+
+.wp-stand-card.available {
+  border-left: 3px solid rgba(255, 255, 255, 0.15);
+}
+
+.wp-runway-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-runway-preferred {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.03);
+}
+
+/* ============================================================
+   AIRCRAFT PHOTO UPLOAD & REVIEW MODAL
+   ============================================================ */
+.wp-upload-modal {
+  width: min(540px, 94vw);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: rgba(13, 18, 28, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  padding: 22px 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideUp 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wp-upload-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wp-upload-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wp-upload-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.wp-upload-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* Tab Switcher */
+.wp-upload-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.wp-upload-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-upload-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.wp-upload-tab.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.wp-upload-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+/* Form Styles */
+.wp-upload-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wp-upload-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f1f5f9;
+}
+
+.wp-upload-alert.success {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.wp-upload-alert.error {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+}
+
+.wp-upload-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.wp-upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-upload-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+}
+
+.wp-upload-select,
+.wp-upload-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  transition: var(--transition-fast);
+}
+
+.wp-upload-select:focus,
+.wp-upload-input:focus {
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wp-upload-select option {
+  background: #111827;
+  color: #ffffff;
+}
+
+.wp-upload-subhint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Dropzone */
+.wp-upload-dropzone {
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-upload-dropzone:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.wp-dropzone-icon {
+  font-size: 26px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+
+.wp-dropzone-main {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.wp-dropzone-hint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* File Preview */
+.wp-upload-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.wp-upload-preview-img {
+  width: 64px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wp-upload-preview-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.wp-preview-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #f8fafc;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wp-preview-size {
+  font-size: 11px;
+  color: #64748b;
+  font-family: var(--font-mono);
+}
+
+.wp-preview-remove-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-preview-remove-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* Guidelines */
+.wp-upload-guidelines {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wp-guidelines-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.wp-guidelines-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.wp-guideline-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.wp-guideline-item i {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+/* Actions */
+.wp-upload-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.wp-upload-cancel-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-upload-cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.wp-upload-submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-upload-submit-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.26);
+}
+
+.wp-upload-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Flight Drawer Contribute Buttons ──────────────── */
+.wp-dr-photo-upload-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(13, 18, 28, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  z-index: 2;
+}
+
+.wp-dr-photo-upload-badge:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.wp-dr-photo-contribute-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-dr-photo-contribute-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+/* Settings Modal Action Button */
+.wp-btn-setting-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-btn-setting-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.wp-btn-setting-action.secondary {
+  color: #94a3b8;
+}
+
+/* ════════════════════════════════════════════════════════════
+   RADAR FLEET FILTER SIDEBAR (COLLAPSIBLE MONOCHROME)
+   ════════════════════════════════════════════════════════════ */
+.wp-filter-sidebar {
+  position: absolute;
+  top: 72px;
+  right: 16px;
+  z-index: 25;
+  width: 280px;
+  border-radius: 12px;
+  background: rgba(10, 14, 22, 0.94);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.wp-filter-sidebar.collapsed {
+  width: auto;
+  border-radius: 8px;
+}
+
+.wp-filter-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wp-filter-sidebar.collapsed .wp-filter-sidebar-header {
+  padding: 7px 12px;
+}
+
+.wp-filter-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wp-filter-count-badge {
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wp-filter-sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-filter-sidebar-body {
+  padding: 10px 12px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wp-filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wp-filter-sec-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.wp-filter-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.wp-filter-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 10.5px;
+  color: #64748b;
+  font-family: var(--font-mono);
+}
+
+.wp-filter-active-indicator {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.wp-filter-reset-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-filter-reset-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+/* ════════════════════════════════════════════════════════════
+   VNAV PROFILE & REPLAY SCRUBBER (FLIGHT DRAWER)
+   ════════════════════════════════════════════════════════════ */
+.wp-dr-chart-container.vnav {
+  height: 85px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+  padding: 6px 0;
+}
+
+.wp-dr-profile-svg.vnav-svg {
+  height: 70px;
+}
+
+.wp-dr-legend-line.white {
+  background: #ffffff;
+}
+
+.wp-dr-legend-line.dashed {
+  background: transparent;
+  border-top: 2px dashed rgba(255, 255, 255, 0.4);
+  height: 0;
+}
+
+.wp-dr-legend-point.amber {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #090d16;
+}
+
+.wp-dr-actions-grid.five-items {
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+
+.wp-dr-actions-grid.five-items .wp-dr-action-btn {
+  padding: 8px 4px;
+}
+
+.wp-dr-actions-grid.five-items .wp-dr-action-btn span {
+  font-size: 10.5px;
+}
+
+/* Replay Scrubber */
+.wp-dr-replay-bar {
+  background: rgba(9, 13, 22, 0.96);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.wp-dr-replay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wp-dr-replay-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+}
+
+.wp-dr-replay-meta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: #94a3b8;
+}
+
+.wp-dr-replay-close {
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: 0.15s;
+}
+
+.wp-dr-replay-close:hover {
+  color: #ffffff;
+}
+
+.wp-dr-replay-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wp-dr-replay-play-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.wp-dr-replay-play-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.wp-dr-replay-slider {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  accent-color: #ffffff;
+  outline: none;
+  cursor: pointer;
+}
+
+.wp-dr-replay-step {
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  color: #64748b;
+  min-width: 50px;
+  text-align: right;
+}
+
+
+
+/* ════════════════════════════════════════════════════════════
+   VHF AUDIO ATIS RADIO TUNER (AIRPORT DRAWER)
+   ════════════════════════════════════════════════════════════ */
+.wp-atis-radio-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wp-atis-radio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wp-atis-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+}
+
+.wp-atis-badge i {
+  color: #cbd5e1;
+}
+
+.wp-atis-freq-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wp-atis-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wp-atis-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.wp-atis-signal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.wp-atis-pip {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #64748b;
+  display: inline-block;
+}
+
+.wp-atis-signal.transmitting .wp-atis-pip {
+  background: #22c55e;
+  box-shadow: none;
+  animation: atisPulse 1.2s infinite;
+}
+
+.wp-atis-signal.transmitting .wp-atis-status-lbl {
+  color: #ffffff;
+}
+
+@keyframes atisPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Oscilloscope waveform bars */
+.wp-atis-waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 16px;
+}
+
+.wp-atis-waveform .bar {
+  width: 3px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  transition: height 0.15s ease;
+}
+
+.wp-atis-waveform.active .bar {
+  background: #ffffff;
+  animation: waveformAnim 0.8s ease-in-out infinite alternate;
+}
+
+.wp-atis-waveform.active .b1 { animation-delay: 0.0s; height: 12px; }
+.wp-atis-waveform.active .b2 { animation-delay: 0.2s; height: 16px; }
+.wp-atis-waveform.active .b3 { animation-delay: 0.1s; height: 8px; }
+.wp-atis-waveform.active .b4 { animation-delay: 0.3s; height: 14px; }
+.wp-atis-waveform.active .b5 { animation-delay: 0.15s; height: 10px; }
+
+@keyframes waveformAnim {
+  0% { height: 4px; opacity: 0.4; }
+  100% { height: 16px; opacity: 1; }
+}
+
+.wp-atis-play-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-atis-play-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.wp-atis-play-btn.playing {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: #ffffff;
+}
+
+.wp-atis-transcript-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px 0;
+  transition: color 0.15s;
+}
+
+.wp-atis-transcript-toggle:hover {
+  color: #94a3b8;
+}
+
+.wp-atis-script-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+
+
+/* ════════════════════════════════════════════════════════════
+   MAP BASE STYLE CONTROLS (HEADER & SETTINGS)
+   ════════════════════════════════════════════════════════════ */
+/* Header 3-way Segmented Switcher */
+.wp-map-theme-pill {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  gap: 3px;
+  background: rgba(17, 24, 38, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wp-theme-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.wp-theme-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.wp-theme-tab.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.wp-theme-tab i {
+  font-size: 12px;
+}
+
+@media (max-width: 1240px) {
+  .wp-theme-tab .theme-name {
+    display: none;
+  }
+  .wp-theme-tab {
+    padding: 0 9px;
+  }
+}
+
+/* Settings Modal Base Style Selector Grid */
+.wp-map-theme-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.wp-map-theme-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition-fast);
+}
+
+.wp-map-theme-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.wp-map-theme-card.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px #ffffff, 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.theme-swatch {
+  width: 100%;
+  height: 48px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-swatch.dark {
+  background: linear-gradient(135deg, #090d14 0%, #172033 100%);
+}
+
+.theme-swatch.dark::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(56, 189, 248, 0.25), transparent 60%);
+}
+
+.theme-swatch.light {
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+}
+
+.theme-swatch.light::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 30%, rgba(14, 165, 233, 0.25), transparent 60%);
+}
+
+.theme-swatch.satellite {
+  background: linear-gradient(135deg, #1c2e24 0%, #0e1e2d 100%);
+  background-image: radial-gradient(circle at 30% 40%, rgba(74, 222, 128, 0.25), transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.3), transparent 50%);
+}
+
+.theme-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.theme-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.theme-sub {
+  font-size: 10px;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+}
+
+/* ════════════════════════════════════════════════════════════
+   DESIGN CLEAN-UP & POLISH ENHANCEMENTS
+   ════════════════════════════════════════════════════════════ */
+/* Smooth border and shadow treatment for all modals */
+.wp-settings-modal {
+  width: 480px;
+  max-width: 95vw;
+}
+
+/* Cleaner header spacing on all viewport widths */
+.wp-header {
+  padding: 0 4px;
+}
+
+/* Clean unified close buttons */
+.wp-close-btn, .wp-modal-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 12px;
+  transition: var(--transition-fast);
+}
+
+.wp-close-btn:hover, .wp-modal-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Mobile responsive cleanup for Approach Modal */
+@media (max-width: 680px) {
+  .wp-approach-body-grid {
+    grid-template-columns: 1fr;
+  }
+  .wp-approach-footer-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── iPhone Notch / Dynamic Island Safe Area Fixes ──────── */
+/* Applied globally so ALL fixed/absolute UI respects the notch */
+
+/* MobileNav bottom bar — stays above home indicator */
+.wp-mobile-nav {
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+
+/* Map container needs full height minus safe areas */
+.wp-map-container, #live-map {
+  top: 0 !important;
+  height: 100% !important;
+  height: 100dvh !important;
+}
+
+/* Drawers and modals pushed above home indicator */
+.wp-drawer-refined {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Floating panels respect side notches (landscape) */
+.wp-left-panels, .wp-right-panels {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}

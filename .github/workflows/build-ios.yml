@@ -1,0 +1,59 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    name: Build Track 24 iOS App (.ipa)
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Build Web Application
+        run: npm run build
+
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+
+      - name: Build Xcode Archive (Release)
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/App.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            archive
+
+      - name: Package Payload into Track24.ipa
+        run: |
+          mkdir -p Payload
+          cp -r "build/App.xcarchive/Products/Applications/App.app" Payload/
+          zip -r Track24.ipa Payload
+          echo "Track24.ipa successfully created!"
+          ls -lh Track24.ipa
+
+      - name: Upload Track24.ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Track24-iOS-IPA
+          path: Track24.ipa
+          retention-days: 14

@@ -1,0 +1,21 @@
+# ── Netlify Proxy Redirects ──────────────────────────────────
+# These act as a reverse proxy: the browser calls YOUR domain,
+# Netlify forwards to the external API, no CORS issues.
+
+# Infinite Flight API (proxy through /ifapi to avoid conflict with /api/airport-layout)
+/ifapi/*  https://api.infiniteflight.com/public/v2/:splat  200
+
+# Airport ground layout
+/api/airport-layout/:icao  https://waypoint-live.app/api/layout/:icao?v=28  200
+
+# Weather proxies
+/weather/metar  https://aviationweather.gov/api/data/metar  200
+/weather/taf    https://aviationweather.gov/api/data/taf    200
+/weather/wind   https://api.open-meteo.com/v1/forecast      200
+/weather/radar  https://api.rainviewer.com/public/weather-maps.json  200
+
+# Wikipedia aircraft image proxy
+/wiki/aircraft-image  https://en.wikipedia.org/w/api.php  200
+
+# SPA fallback — all other routes serve index.html
+/*  /index.html  200

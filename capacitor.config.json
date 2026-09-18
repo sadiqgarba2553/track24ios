@@ -1,0 +1,16 @@
+{
+  "appId": "com.track24.app",
+  "appName": "Track 24",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "ios": {
+    "scheme": "Track24",
+    "contentInset": "always"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#0b0f19"
+    }
+  }
+}

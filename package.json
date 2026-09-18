@@ -1,0 +1,34 @@
+{
+  "name": "track-it",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"node --no-warnings server.js\" \"vite\"",
+    "server": "node --no-warnings server.js",
+    "vite": "vite",
+    "build": "vite build",
+    "build:ios": "vite build && cap sync ios",
+    "cap:sync": "cap sync ios",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "concurrently": "^10.0.5",
+    "vite": "^8.1.1"
+  },
+  "dependencies": {
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2",
+    "@turf/turf": "^7.3.5",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "maplibre-gl": "^5.24.0",
+    "node-fetch": "^3.3.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-map-gl": "^8.1.1",
+    "serverless-http": "^4.0.0"
+  }
+}

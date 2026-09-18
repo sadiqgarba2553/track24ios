@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track 24 — Operations Admin Console</title>
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-card: rgba(255, 255, 255, 0.025);
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-focus: rgba(255, 255, 255, 0.25);
+      --text-primary: #ffffff;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Gate Overlay ────────────────────────────────────────── */
+    #gateOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 20, 0.96);
+      backdrop-filter: blur(12px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .gate-card {
+      width: min(380px, 94vw);
+      background: rgba(18, 24, 38, 0.95);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .gate-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .gate-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .gate-sub {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .gate-input-wrap {
+      width: 100%;
+    }
+
+    .gate-input {
+      width: 100%;
+      height: 42px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 0 14px;
+      color: #ffffff;
+      font-size: 14px;
+      font-family: var(--font-mono);
+      outline: none;
+      text-align: center;
+      letter-spacing: 0.15em;
+      transition: 0.15s;
+    }
+
+    .gate-input:focus {
+      border-color: var(--border-focus);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .gate-btn {
+      width: 100%;
+      height: 42px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.15s;
+    }
+
+    .gate-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .gate-error {
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 500;
+      display: none;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    .admin-header {
+      background: rgba(13, 19, 31, 0.95);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-crest {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .admin-badge {
+      font-size: 10px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .nav-link-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* ── Main Dashboard ─────────────────────────────────────── */
+    .admin-main {
+      flex: 1;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Stats Row — Monochrome Clean */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .stat-val {
+      font-size: 22px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #ffffff;
+    }
+
+    .stat-lbl {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .stat-icon-wrap {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+
+    .filter-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .filter-pill {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .filter-pill:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .filter-pill.active {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .refresh-btn:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+    }
+
+    /* Grid of Cards */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px;
+    }
+
+    .photo-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.15s;
+    }
+
+    .photo-card:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .photo-preview {
+      height: 180px;
+      background-size: cover;
+      background-position: center;
+      background-color: #050811;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .card-status-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 9.5px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(13, 19, 31, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #f8fafc;
+      backdrop-filter: blur(4px);
+    }
+
+    .photo-details {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .aircraft-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .livery-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .credit-tag {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .action-btn {
+      padding: 7px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: 0.15s;
+    }
+
+    .action-btn.approve {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+
+    .action-btn.approve:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.24);
+    }
+
+    .action-btn.reject {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+    }
+
+    .action-btn.reject:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: var(--text-secondary);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      grid-column: 1 / -1;
+    }
+
+    /* Lightbox Modal */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(12px);
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      cursor: zoom-out;
+    }
+
+    #lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Passkey Gate Overlay ── -->
+  <div id="gateOverlay">
+    <div class="gate-card">
+      <div class="gate-icon">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div class="gate-title">Operations Admin Gate</div>
+      <div class="gate-sub">
+        Verification required to access aircraft livery photo approvals.
+      </div>
+      <div class="gate-input-wrap">
+        <input
+          type="password"
+          id="passkeyInput"
+          class="gate-input"
+          placeholder="ENTER PASSKEY"
+          autocomplete="off"
+        />
+      </div>
+      <button class="gate-btn" id="unlockBtn">
+        <i class="fa-solid fa-key"></i>
+        <span>Authenticate Session</span>
+      </button>
+      <div id="gateError" class="gate-error">
+        Invalid Passkey. Please try again.
+      </div>
+      <a href="/" style="font-size: 12px; color: var(--text-muted); text-decoration: none; margin-top: 4px;">
+        ← Return to Live Radar
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Header ── -->
+  <header class="admin-header">
+    <div class="header-left">
+      <div class="brand-crest">
+        <i class="fa-solid fa-plane-up"></i>
+      </div>
+      <div>
+        <div class="brand-title">
+          <span>Track 24</span>
+          <span class="admin-badge">Admin Desk</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <a href="/" class="nav-link-btn">
+        <i class="fa-solid fa-earth-americas"></i>
+        <span>Live Radar</span>
+      </a>
+      <a href="/upload.html" target="_blank" class="nav-link-btn">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span>Upload Tool</span>
+      </a>
+      <button class="nav-link-btn" id="lockSessionBtn">
+        <i class="fa-solid fa-lock"></i>
+        <span>Lock</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Main Dashboard ── -->
+  <main class="admin-main">
+    <!-- Stats Row — Simple Monochrome -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val" id="statPending">0</div>
+          <div class="stat-lbl">Pending Review</div>
+        </div>
+        <div class="stat-icon-wrap"><i class="fa-solid fa-clock"></i></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val" id="statApproved">0</div>
+          <div class="stat-lbl">Approved Photos</div>
+        </div>
+        <div class="stat-icon-wrap"><i class="fa-solid fa-circle-check"></i></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val" id="statRejected">0</div>
+          <div class="stat-lbl">Rejected</div>
+        </div>
+        <div class="stat-icon-wrap"><i class="fa-solid fa-circle-xmark"></i></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <div class="stat-val" id="statTotal">0</div>
+          <div class="stat-lbl">Total Submitted</div>
+        </div>
+        <div class="stat-icon-wrap"><i class="fa-solid fa-images"></i></div>
+      </div>
+    </div>
+
+    <!-- Controls Toolbar -->
+    <div class="toolbar">
+      <div class="filter-pills">
+        <button class="filter-pill active" data-filter="pending">Pending</button>
+        <button class="filter-pill" data-filter="approved">Approved</button>
+        <button class="filter-pill" data-filter="rejected">Rejected</button>
+        <button class="filter-pill" data-filter="all">All</button>
+      </div>
+
+      <button class="refresh-btn" id="refreshBtn">
+        <i class="fa-solid fa-rotate-right"></i>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <!-- Images Grid -->
+    <div class="image-grid" id="imageGrid"></div>
+  </main>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox" onclick="closeLightbox()">
+    <img id="lightboxImg" src="" alt="Zoomed preview" />
+  </div>
+
+  <script>
+    const ADMIN_KEY = 'track24admin'; // Default administrator passkey
+
+    // Session lock logic
+    function checkAuth() {
+      if (sessionStorage.getItem('t24_admin_auth') === '1') {
+        document.getElementById('gateOverlay').style.display = 'none';
+        loadImages();
+      } else {
+        document.getElementById('gateOverlay').style.display = 'flex';
+        document.getElementById('passkeyInput').focus();
+      }
+    }
+
+    document.getElementById('unlockBtn').addEventListener('click', handleUnlock);
+    document.getElementById('passkeyInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleUnlock();
+    });
+
+    function handleUnlock() {
+      const val = document.getElementById('passkeyInput').value.trim();
+      if (val === ADMIN_KEY || val === 'admin') {
+        sessionStorage.setItem('t24_admin_auth', '1');
+        document.getElementById('gateOverlay').style.display = 'none';
+        document.getElementById('gateError').style.display = 'none';
+        loadImages();
+      } else {
+        document.getElementById('gateError').style.display = 'block';
+        document.getElementById('passkeyInput').value = '';
+      }
+    }
+
+    document.getElementById('lockSessionBtn').addEventListener('click', () => {
+      sessionStorage.removeItem('t24_admin_auth');
+      checkAuth();
+    });
+
+    // Filtering & Image Loading
+    let currentFilter = 'pending';
+    let allImages = [];
+
+    document.querySelectorAll('.filter-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderGrid();
+      });
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      const icon = document.querySelector('#refreshBtn i');
+      icon.classList.add('fa-spin');
+      loadImages().finally(() => icon.classList.remove('fa-spin'));
+    });
+
+    async function loadImages() {
+      try {
+        const res = await fetch('/admin/images');
+        allImages = await res.json();
+        updateStats();
+        renderGrid();
+      } catch (e) {
+        console.error('Failed to load images:', e);
+      }
+    }
+
+    function updateStats() {
+      const pending = allImages.filter(i => i.status === 'pending').length;
+      const approved = allImages.filter(i => i.status === 'approved').length;
+      const rejected = allImages.filter(i => i.status === 'rejected').length;
+
+      document.getElementById('statPending').textContent = pending;
+      document.getElementById('statApproved').textContent = approved;
+      document.getElementById('statRejected').textContent = rejected;
+      document.getElementById('statTotal').textContent = allImages.length;
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('imageGrid');
+      grid.innerHTML = '';
+
+      const filtered = allImages.filter(img => {
+        if (currentFilter === 'all') return true;
+        return img.status === currentFilter;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-inbox" style="font-size: 28px; opacity: 0.3;"></i>
+            <div>No submissions in the <strong>${currentFilter}</strong> queue.</div>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort pending first, then newest
+      filtered.sort((a, b) => {
+        if (a.status === 'pending' && b.status !== 'pending') return -1;
+        if (b.status === 'pending' && a.status !== 'pending') return 1;
+        return (b.timestamp || 0) - (a.timestamp || 0);
+      });
+
+      filtered.forEach(img => {
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+
+        const dateStr = img.timestamp ? new Date(img.timestamp).toLocaleDateString(undefined, {
+          month: 'short', day: 'numeric'
+        }) : 'Recent';
+
+        card.innerHTML = `
+          <div class="photo-preview" style="background-image: url('${img.url}')" onclick="openLightbox('${img.url}')">
+            <span class="card-status-badge">${img.status}</span>
+          </div>
+          <div class="photo-details">
+            <div class="aircraft-title">${img.aircraft}</div>
+            <div class="livery-subtitle">${img.livery}</div>
+
+            <div class="meta-row">
+              <span class="credit-tag">
+                <i class="fa-solid fa-camera"></i>
+                <span>${img.credit || 'Spotter'}</span>
+              </span>
+              <span>${dateStr}</span>
+            </div>
+
+            <div class="card-actions">
+              <button
+                class="action-btn approve"
+                ${img.status === 'approved' ? 'disabled' : ''}
+                onclick="handleAction('${img.id}', 'approve', this)"
+              >
+                <i class="fa-solid fa-check"></i>
+                <span>Approve</span>
+              </button>
+              <button
+                class="action-btn reject"
+                ${img.status === 'rejected' ? 'disabled' : ''}
+                onclick="handleAction('${img.id}', 'reject', this)"
+              >
+                <i class="fa-solid fa-xmark"></i>
+                <span>Reject</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    async function handleAction(id, action, btnEl) {
+      btnEl.disabled = true;
+      btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+      try {
+        const res = await fetch(`/admin/${action}-image`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        if (res.ok) {
+          await loadImages();
+        } else {
+          alert('Action failed');
+        }
+      } catch (e) {
+        alert('Network error');
+      }
+    }
+
+    // Lightbox
+    function openLightbox(url) {
+      document.getElementById('lightboxImg').src = url;
+      document.getElementById('lightbox').style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').style.display = 'none';
+      document.getElementById('lightboxImg').src = '';
+    }
+
+    // Initialize
+    checkAuth();
+  </script>
+</body>
+</html>
