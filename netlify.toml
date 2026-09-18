@@ -1,50 +1,34 @@
 [build]
-  command = "npm run build"
   publish = "dist"
   functions = "netlify/functions"
+  command = "npm run build"
 
-[functions]
-  node_bundler = "esbuild"
-
-# Backend API routes → Netlify serverless function
-# :splat captures everything after the prefix and passes it to the function
 [[redirects]]
   from = "/api/*"
-  to = "/.netlify/functions/server/api/:splat"
+  to = "/.netlify/functions/api/:splat"
   status = 200
-  force = true
 
 [[redirects]]
   from = "/weather/*"
-  to = "/.netlify/functions/server/weather/:splat"
+  to = "/.netlify/functions/weather/:splat"
   status = 200
-  force = true
 
 [[redirects]]
   from = "/wiki/*"
-  to = "/.netlify/functions/server/wiki/:splat"
+  to = "/.netlify/functions/wiki/:splat"
   status = 200
-  force = true
-
-[[redirects]]
-  from = "/uploads/*"
-  to = "/.netlify/functions/server/uploads/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/admin/*"
-  to = "/.netlify/functions/server/admin/:splat"
-  status = 200
-  force = true
 
 [[redirects]]
   from = "/upload-aircraft-image"
-  to = "/.netlify/functions/server/upload-aircraft-image"
+  to = "/.netlify/functions/upload"
   status = 200
-  force = true
 
-# SPA fallback — all other routes → index.html (React Router)
+[[redirects]]
+  from = "/admin/*"
+  to = "/.netlify/functions/admin/:splat"
+  status = 200
+
+# SPA fallback — serve index.html for all other routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
